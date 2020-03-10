@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:28.0-jre'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.3'
+
+    testImplementation 'junit:junit:4.12'
+}
+
+application {
+    mainClassName = 'com.divio.flavours.fam.gradle.App'
+}
