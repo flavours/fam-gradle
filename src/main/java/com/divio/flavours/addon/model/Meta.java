@@ -1,24 +1,29 @@
 package com.divio.flavours.addon.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Meta {
-    private final String name;
-    private final String version;
+    @JsonProperty("name")
+    private final String nameValue;
+
+    @JsonProperty("version")
+    private final String versionValue;
 
     Meta() {
-        name = null;
-        version = null;
+        nameValue = null;
+        versionValue = null;
     }
     
-    public Meta(final String name, final String version) {
-        this.name = name;
-        this.version = version;
+    public Meta(final String nameValue, final String versionValue) {
+        this.nameValue = nameValue;
+        this.versionValue = versionValue;
     }
 
     public String getName() {
-        return name;
+        return nameValue;
     }
 
     public String getVersion() {
-        return version;
+        return versionValue;
     }
 }

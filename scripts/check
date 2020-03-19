@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+# TODO: call java -jar <jarfile> <command>

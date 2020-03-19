@@ -14,7 +14,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import org.junit.Test;
 
-public class ConfigBaseTest {
+public class AddonModelTest {
 
     protected List<String> readResource(String resourceName) throws IOException {
         var in = getClass().getClassLoader().getResourceAsStream(resourceName);
@@ -27,15 +27,26 @@ public class ConfigBaseTest {
     @Test
     public void canParseConfigBase() throws IOException {
         var mapper = new ObjectMapper(new YAMLFactory());
-        var in = getClass().getClassLoader().getResourceAsStream("addon/example2.yaml");
-        var configBase = mapper.readValue(in, ConfigBase.class);
-        var meta = configBase.getMeta();
-        var install = configBase.getInstall();
-        var spec = configBase.getSpec();
+        var in = getClass().getClassLoader().getResourceAsStream("addon/example1.yaml");
+        var addon = mapper.readValue(in, Addon.class);
+        var meta = addon.getMeta();
+        var install = addon.getInstall();
+        var spec = addon.getSpec();
 
         assertEquals("django-divio", meta.getName());
         assertEquals("0.1", meta.getVersion());
         assertEquals("django==1.11.20.4", install.getPackage());
         assertEquals("0.1", spec);
+
+        var config = addon.getConfig();
+        var languageConfig = config.get("languages");
+
+        assertEquals("Languages", languageConfig.getLabel());
+        assertEquals(true, languageConfig.isRequired());
+        assertEquals("scalar/string", languageConfig.getType());
+        assertEquals("en,de", languageConfig.getDefault());
+        assertEquals("WARNING: this field is auto-written. Please do not change it here.",
+                languageConfig.getHelpText());
+
     }
 }
