@@ -6,7 +6,7 @@ meta:
   version: 0.1
 
 config: 
-  languages: # list(str())
+  languages:
     label: Languages
     required: True
     type: "scalar/string"

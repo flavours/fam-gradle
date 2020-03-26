@@ -1,4 +1,4 @@
-package com.divio.flavours.addon.model;
+package com.divio.flavours.fam.gradle.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -31,7 +31,7 @@ public class Config {
     }
 
     public Config(String labelValue, boolean requiredValue, String typeValue, String defaultValue, String helpTextValue,
-            Integer minValue) {
+                  Integer minValue) {
         this.labelValue = labelValue;
         this.requiredValue = requiredValue;
         this.typeValue = typeValue;

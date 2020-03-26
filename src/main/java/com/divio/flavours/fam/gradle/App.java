@@ -1,109 +1,98 @@
 package com.divio.flavours.fam.gradle;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.divio.flavours.addon.model.Addon;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.divio.flavours.Utils;
+import com.divio.flavours.fam.gradle.model.Addon;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import javax.validation.Validation;
+import java.io.IOException;
+
 public class App {
+    private final AddonParser addonParser;
 
-    public Object add() throws IOException {
-        var inputLines = readLines(System.in);
-        
-        return null;
+    public App(final AddonParser addonParser) {
+        this.addonParser = addonParser;
     }
 
-    public Object check() throws IOException {
-        var inputLines = readLines(System.in);
-        
-        return null;
+    public static void main(String[] args) throws IOException {
+        var objectMapper = new ObjectMapper(new YAMLFactory());
+        var validatorFactory = Validation.buildDefaultValidatorFactory();
+        var addonParser = new AddonParser(objectMapper, validatorFactory);
+        var app = new App(addonParser);
+
+        app.runArgs(args);
     }
 
-    public Object remove(String addonName) {
-        return null;
+    private void add(Addon addon) {
+        throw new AssertionError("Not implemented");
     }
 
-    public List<String> readLines(InputStream in) throws IOException {
-        if (in.available() == 0)
-            return Collections.emptyList();
-
-        try (var bin = new BufferedReader(new InputStreamReader(in))) {
-            var result = bin.lines().collect(Collectors.toList());
-            return result;
+    private void check(Addon addon) {
+        if (addon.isValid()) {
+            System.exit(0);
+        } else {
+            System.exit(1);
         }
     }
 
-    public Addon linesToYaml(List<String> lines) throws JsonMappingException, JsonProcessingException {
-        var mapper = new ObjectMapper(new YAMLFactory());
-        var joined = String.join("\n", lines);
-        var addon = mapper.readValue(joined, Addon.class);
-        return addon;
+    private Object remove(Addon addon) {
+        throw new AssertionError("Not implemented");
     }
 
     private void runArgs(String[] args) throws IOException {
         if (args.length == 0) {
-            printHelpDefault();
-            return;
+            printHelp();
+            System.exit(0);
         }
 
-        var first = args[0];
+        var in = Utils.readLines(System.in);
 
-        switch (first) {
+        if (in.isEmpty()) {
+            printHelp();
+            System.exit(0);
+        }
+
+        Addon addon = null;
+
+        try {
+            addon = addonParser.parse(in);
+        } catch (AddonParseException e) {
+            printLines(
+                    "Error when parsing yaml:",
+                    e.getMessage()
+            );
+            System.exit(1);
+        }
+
+        var command = args[0];
+
+        switch (command) {
             case "add":
+                add(addon);
                 break;
             case "check":
+                check(addon);
                 break;
             case "remove":
-                if (args.length != 2) {
-                    printHelpRemove();
-                    return;
-                }
-
-                var addonName = args[1];
-                remove(addonName);
+                remove(addon);
                 break;
             default:
-                printHelpDefault();
+                printHelp();
         }
     }
 
-    private void printHelpMessage(String ...lines) {
+    private void printLines(String... lines) {
         var message = String.join(System.lineSeparator(), lines);
         System.out.println(message);
     }
 
-    private void printHelpDefault() {
-        var lines = new String[] {
-            "",
-            "",
-            "",
-            "",
-        };
-
-        printHelpMessage(lines);
-    }
-
-    private void printHelpRemove() {
-        printHelpMessage();
-    }
-
-    public static void main(String[] args) throws IOException {
-        var app = new App();
-        app.runArgs(args);
-        // var lines = app.readLines(System.in);
-
-        // for (var line : lines) {
-        //     System.out.println("Line: " + line);
-        // }
+    private void printHelp() {
+        printLines(
+                "FAM-gradle",
+                "syntax: fam-gradle <add|check|remove>",
+                "",
+                "Data to commands should be passed through stdin."
+        );
     }
 }

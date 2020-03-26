@@ -1,22 +1,25 @@
 package com.divio.flavours;
 
-import java.io.UnsupportedEncodingException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-class Utils {
+public class Utils {
     public static byte[] toSha1Digest(String text) {
         try {
             var digester = MessageDigest.getInstance("SHA-1");
-            digester.update(text.getBytes("UTF-8"));
+            digester.update(text.getBytes(StandardCharsets.UTF_8));
             var digest = digester.digest();
             return digest;
-        }
-        catch (NoSuchAlgorithmException nsae) {
+        } catch (NoSuchAlgorithmException nsae) {
             throw new RuntimeException("SHA-1 MessageDigest not available.", nsae);
-        }
-        catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException("UTF-8 not supported.", uee);
         }
     }
 
@@ -31,5 +34,14 @@ class Utils {
 
     public static String toSha1String(final String text) {
         return toHexString(toSha1Digest(text));
+    }
+
+    public static List<String> readLines(InputStream in) throws IOException {
+        if (in.available() == 0)
+            return Collections.emptyList();
+
+        try (var bin = new BufferedReader(new InputStreamReader(in))) {
+            return bin.lines().collect(Collectors.toList());
+        }
     }
 }

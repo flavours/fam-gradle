@@ -1,19 +1,20 @@
-package com.divio.flavours.addon.model;
+package com.divio.flavours.fam.gradle.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.NotBlank;
+
 public class Meta {
     @JsonProperty("name")
-    private final String nameValue;
+    @NotBlank
+    private String nameValue;
 
     @JsonProperty("version")
-    private final String versionValue;
+    @NotBlank
+    private String versionValue;
 
-    Meta() {
-        nameValue = null;
-        versionValue = null;
-    }
-    
+    public Meta() { }
+
     public Meta(final String nameValue, final String versionValue) {
         this.nameValue = nameValue;
         this.versionValue = versionValue;

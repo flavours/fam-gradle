@@ -1,31 +1,32 @@
-package com.divio.flavours.addon.model;
-
-import java.util.Map;
+package com.divio.flavours.fam.gradle.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.Map;
+
 public class Addon {
     @JsonProperty("spec")
-    private final String specValue;
+    @NotBlank
+    private String specValue;
 
     @JsonProperty("install")
-    private final Install installValue;
+    @NotNull @Valid
+    private Install installValue;
 
     @JsonProperty("meta")
-    private final Meta metaValue;
+    @NotNull @Valid
+    private Meta metaValue;
 
     @JsonProperty("config")
-    private final Map<String, Config> configValue;
+    private Map<String, Config> configValue;
 
-    Addon() {
-        specValue = null;
-        installValue = null;
-        metaValue = null;
-        configValue = null;
-    }
+    Addon() { }
 
     public Addon(final String specValue, final Install installValue, final Meta metaValue,
-            final Map<String, Config> configValue) {
+                 final Map<String, Config> configValue) {
         this.specValue = specValue;
         this.installValue = installValue;
         this.metaValue = metaValue;
@@ -48,8 +49,8 @@ public class Addon {
         return specValue;
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        throw new RuntimeException("Not implemented");
+    // TODO add validation logic
+    public boolean isValid() {
+        return true;
     }
 }
