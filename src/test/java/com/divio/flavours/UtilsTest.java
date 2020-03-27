@@ -3,13 +3,13 @@ package com.divio.flavours;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UtilsTest {
     @Test
     public void testToHexStringWithDigest() {
-        var expected = "0a0a9f2a6772942557ab5355d76af442f8f65e01";
-        var actual = Utils.toSha1String("Hello, World!");
-        assertEquals(expected, actual);
+        var expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f";
+        var actual = Utils.toSha256String("Hello, World!");
+        assertThat(actual).isEqualTo(expected);
     }
 }

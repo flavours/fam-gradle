@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Utils {
-    public static byte[] toSha1Digest(String text) {
+    public static byte[] toSha256Digest(String text) {
         try {
-            var digester = MessageDigest.getInstance("SHA-1");
+            var digester = MessageDigest.getInstance("SHA-256");
             digester.update(text.getBytes(StandardCharsets.UTF_8));
             var digest = digester.digest();
             return digest;
         } catch (NoSuchAlgorithmException nsae) {
-            throw new RuntimeException("SHA-1 MessageDigest not available.", nsae);
+            throw new RuntimeException("SHA-256 MessageDigest not available.", nsae);
         }
     }
 
@@ -32,8 +32,8 @@ public class Utils {
         return sb.toString();
     }
 
-    public static String toSha1String(final String text) {
-        return toHexString(toSha1Digest(text));
+    public static String toSha256String(final String text) {
+        return toHexString(toSha256Digest(text));
     }
 
     public static List<String> readLines(InputStream in) throws IOException {
