@@ -13,6 +13,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.3'
 
     implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.codehaus.groovy:groovy:3.0.2'
 
     runtime 'org.hibernate.validator:hibernate-validator:6.1.2.Final'
     runtime 'org.glassfish:javax.el:3.0.1-b11'
@@ -35,7 +36,7 @@ jar {
   manifest {
     attributes(
       'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': 'com.divio.flavours.fam.gradle.App',
+      'Main-Class': 'com.divio.flavours.fam.gradle.Main',
     )
   }
 }

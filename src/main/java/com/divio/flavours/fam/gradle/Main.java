@@ -2,24 +2,19 @@ package com.divio.flavours.fam.gradle;
 
 import com.divio.flavours.Utils;
 import com.divio.flavours.fam.gradle.model.Addon;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import javax.validation.Validation;
 import java.io.IOException;
 
-public class App {
-    private final AddonParser addonParser;
+public class Main {
+    private final YamlParser<Addon> addonParser;
 
-    public App(final AddonParser addonParser) {
+    public Main(final YamlParser<Addon> addonParser) {
         this.addonParser = addonParser;
     }
 
     public static void main(String[] args) throws IOException {
-        var objectMapper = new ObjectMapper(new YAMLFactory());
-        var validatorFactory = Validation.buildDefaultValidatorFactory();
-        var addonParser = new AddonParser(objectMapper, validatorFactory);
-        var app = new App(addonParser);
+        var addonParser = new YamlParser<>(Addon.class);
+        var app = new Main(addonParser);
 
         app.runArgs(args);
     }
@@ -57,7 +52,7 @@ public class App {
 
         try {
             addon = addonParser.parse(in);
-        } catch (AddonParseException e) {
+        } catch (YamlParseException e) {
             printLines(
                     "Error when parsing yaml:",
                     e.getMessage()

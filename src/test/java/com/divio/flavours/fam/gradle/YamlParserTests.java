@@ -1,10 +1,9 @@
 package com.divio.flavours.fam.gradle;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.divio.flavours.fam.gradle.model.Addon;
+import com.divio.flavours.fam.gradle.model.App;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.Validation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
-public class AddonParserTests {
+public class YamlParserTests {
     private List<String> readResource(final String resourceName) throws IOException {
         var in = getClass().getClassLoader().getResourceAsStream(resourceName);
         assertThat(in).isNotNull();
@@ -25,20 +24,15 @@ public class AddonParserTests {
     }
 
     @Test
-    public void canParseConfigBase() throws IOException, AddonParseException {
-        var mapper = new ObjectMapper(new YAMLFactory());
-        var validatorFactory = Validation.buildDefaultValidatorFactory();
-        var addonParser = new AddonParser(mapper, validatorFactory);
+    public void canParseAddonConfig() throws IOException, YamlParseException {
+        var addonParser = new YamlParser<>(Addon.class);
 
         var addon = addonParser.parse(readResource("addon/example1.yaml"));
-        var meta = addon.getMeta();
-        var install = addon.getInstall();
-        var spec = addon.getSpec();
 
-        assertThat(meta.getName()).isEqualTo("django-divio");
-        assertThat(meta.getVersion()).isEqualTo("0.1");
-        assertThat(install.getPackage()).isEqualTo("django==1.11.20.4");
-        assertThat(spec).isEqualTo("0.1");
+        assertThat(addon.getSpec()).isEqualTo("0.1");
+        assertThat(addon.getMeta().getName()).isEqualTo("django-divio");
+        assertThat(addon.getMeta().getVersion()).isEqualTo("0.1");
+        assertThat(addon.getInstall().getPackage()).isEqualTo("django==1.11.20.4");
 
         var config = addon.getConfig();
         var languageConfig = config.get("languages");
@@ -51,14 +45,29 @@ public class AddonParserTests {
     }
 
     @Test
+    public void canParseAppConfig() throws IOException, YamlParseException {
+        var appParser = new YamlParser<>(App.class);
+
+        var app = appParser.parse(readResource("app/example1.yaml"));
+
+        assertThat(app.getSpec()).isEqualTo("0.1");
+        assertThat(app.getMeta().getName()).isEqualTo("my-aldryn-project");
+        assertThat(app.getMeta().getVersion()).isEqualTo("0.1");
+
+        var addons = app.getAddons();
+        assertThat(addons.get("addon/aldryn-addons:1.0.4").getManager()).isEqualTo("flavour/fam-aldryn:0.1");
+        assertThat(addons.get("addon/aldryn-addons:1.0.4").getHash()).isEqualTo("1cf06ba56949fe7370d81b9ba459a272cf1879036d9a363a119cd441d8854182");
+        assertThat(addons.get("addon/aldryn-common:1.0.4").getManager()).isEqualTo("flavour/fam-aldryn:0.1");
+        assertThat(addons.get("addon/aldryn-common:1.0.4").getHash()).isEqualTo("f2c5818177ea75546d2e18d65f2d6890ddfa7d87fc617d7200c9df7c2f9857f2");
+    }
+
+    @Test
     public void failsOnIncompleteYaml() throws IOException {
-        var mapper = new ObjectMapper(new YAMLFactory());
-        var validatorFactory = Validation.buildDefaultValidatorFactory();
-        var addonParser = new AddonParser(mapper, validatorFactory);
+        var addonParser = new YamlParser<>(Addon.class);
         var addonConfigLines = readResource("addon/error-example.yaml");
 
         assertThatThrownBy(() -> addonParser.parse(addonConfigLines))
-                .isInstanceOf(AddonParseException.class)
+                .isInstanceOf(YamlParseException.class)
                 .hasMessageContaining("installValue must not be null")
                 .hasMessageContaining("metaValue.nameValue must not be blank");
     }
