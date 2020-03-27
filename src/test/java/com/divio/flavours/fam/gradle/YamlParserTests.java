@@ -1,12 +1,11 @@
 package com.divio.flavours.fam.gradle;
 
-import com.divio.flavours.fam.gradle.model.Addon;
-import com.divio.flavours.fam.gradle.model.App;
+import com.divio.flavours.fam.gradle.model.AddonConfig;
+import com.divio.flavours.fam.gradle.model.AddonMeta;
+import com.divio.flavours.fam.gradle.model.AppConfig;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class YamlParserTests {
 
     @Test
     public void canParseAddonConfig() throws IOException, YamlParseException {
-        var addonParser = new YamlParser<>(Addon.class);
+        var addonParser = new YamlParser<>(AddonConfig.class);
 
         var addon = addonParser.parse(readResource("addon/example1.yaml"));
 
@@ -46,9 +45,9 @@ public class YamlParserTests {
 
     @Test
     public void canParseAppConfig() throws IOException, YamlParseException {
-        var appParser = new YamlParser<>(App.class);
+        var appParser = new YamlParser<>(AppConfig.class);
 
-        var app = appParser.parse(readResource("app/example1.yaml"));
+        var app = appParser.parse(readResource("app/app.flavour"));
 
         assertThat(app.getSpec()).isEqualTo("0.1");
         assertThat(app.getMeta().getName()).isEqualTo("my-aldryn-project");
@@ -63,12 +62,26 @@ public class YamlParserTests {
 
     @Test
     public void failsOnIncompleteYaml() throws IOException {
-        var addonParser = new YamlParser<>(Addon.class);
+        var addonParser = new YamlParser<>(AddonConfig.class);
         var addonConfigLines = readResource("addon/error-example.yaml");
 
         assertThatThrownBy(() -> addonParser.parse(addonConfigLines))
                 .isInstanceOf(YamlParseException.class)
                 .hasMessageContaining("installValue must not be null")
                 .hasMessageContaining("metaValue.nameValue must not be blank");
+    }
+
+    @Test
+    public void canWriteAnAST() throws IOException, YamlParseException {
+        var appParser = new YamlParser<>(AppConfig.class);
+        var app = appParser.parse(readResource("app/app.flavour"));
+        app.getAddons().put("addon/s3-addons:1.0.0", new AddonMeta("flavour/fam-gradle:0.1", "abc123"));
+
+        var writer = new StringWriter();
+        appParser.write(app, writer);
+        var newData = writer.toString();
+        var updatedApp = appParser.parse(newData);
+        assertThat(updatedApp.getAddons().get("addon/s3-addons:1.0.0").getManager()).isEqualTo("flavour/fam-gradle:0.1");
+        assertThat(updatedApp.getAddons().get("addon/s3-addons:1.0.0").getHash()).isEqualTo("abc123");
     }
 }

@@ -2,27 +2,30 @@ package com.divio.flavours.fam.gradle.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
+import java.util.Set;
 
-public class App {
+public class AppConfig implements ValidatableConfig<AppConfig> {
     @JsonProperty("spec")
     @NotBlank
     private String specValue;
 
     @JsonProperty("meta")
-    @NotNull @Valid
+    @NotNull
+    @Valid
     private Meta metaValue;
 
     @JsonProperty("addons")
     private Map<String, AddonMeta> addonsValue;
 
-    App() { }
+    private AppConfig() {
+    }
 
-    public App(final String specValue, final Install installValue, final Meta metaValue,
-                 final Map<String, AddonMeta> addonsValue) {
+    public AppConfig(final String specValue, final Meta metaValue, final Map<String, AddonMeta> addonsValue) {
         this.specValue = specValue;
         this.metaValue = metaValue;
         this.addonsValue = addonsValue;
@@ -40,8 +43,8 @@ public class App {
         return specValue;
     }
 
-    // TODO add validation logic
-    public boolean isValid() {
-        return true;
+    @Override
+    public Set<ConstraintViolation<AppConfig>> validate() {
+        return Set.of();
     }
 }
