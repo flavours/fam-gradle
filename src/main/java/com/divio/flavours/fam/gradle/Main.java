@@ -6,12 +6,15 @@ import com.divio.flavours.fam.gradle.model.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 public class Main {
     public static final String FAM_VERSION = "0.1";
     public static final String FAM_NAME = "flavour/fam-gradle";
     public static final String FAM_IDENTITY = FAM_VERSION + ":" + FAM_NAME;
+    public static final Path APP_PATH = Path.of("/app");
+    public static final File APP_FILE = APP_PATH.resolve("app.flavour").toFile();
 
     private final YamlParser<AddonConfig> addonConfigParser;
     private final YamlParser<AppConfig> appConfigParser;
@@ -30,16 +33,15 @@ public class Main {
     }
 
     private void add(AddonConfig addonConfig) throws IOException, YamlParseException {
-        var appFile = new File("app.flavour");
-        var appFileExists = appFile.createNewFile(); // creates a new file if app.flavour doesn't exist.
+        var appFileWasCreated = APP_FILE.createNewFile(); // creates a new file if app.flavour doesn't exist.
 
         AppConfig appConfig;
 
-        if (appFileExists) {
-            appConfig = appConfigParser.parse(appFile);
-        } else {
+        if (appFileWasCreated) {
             var meta = new Meta("my-project", "0.1");
             appConfig = new AppConfig("0.1", meta, new HashMap<>());
+        } else {
+            appConfig = appConfigParser.parse(APP_FILE);
         }
 
         var writer = new StringWriter();
@@ -58,7 +60,7 @@ public class Main {
         var newAddonEntry = new AddonMeta(FAM_IDENTITY, addonConfigHash);
         var pkg = addonConfig.getInstall().getPackage();
         appConfig.getAddons().put(addonConfig.getInstall().getPackage(), newAddonEntry);
-        appConfigParser.write(appConfig, appFile);
+        appConfigParser.write(appConfig, APP_FILE);
         printLines(
                 "Added addon",
                 "Package: " + pkg,
@@ -123,6 +125,7 @@ public class Main {
             );
             System.exit(1);
         }
+        System.exit(0);
     }
 
     private void printLines(String... lines) {
