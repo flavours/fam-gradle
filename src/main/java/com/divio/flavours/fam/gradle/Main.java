@@ -1,10 +1,14 @@
 package com.divio.flavours.fam.gradle;
 
 import com.divio.flavours.Utils;
-import com.divio.flavours.fam.gradle.model.*;
+import com.divio.flavours.fam.gradle.model.AddonConfig;
+import com.divio.flavours.fam.gradle.model.AddonMeta;
+import com.divio.flavours.fam.gradle.model.AppConfig;
+import com.divio.flavours.fam.gradle.model.Meta;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -13,8 +17,7 @@ public class Main {
     public static final String FAM_VERSION = "0.1";
     public static final String FAM_NAME = "flavour/fam-gradle";
     public static final String FAM_IDENTITY = FAM_VERSION + ":" + FAM_NAME;
-    public static final Path APP_PATH = Path.of("/app");
-    public static final File APP_FILE = APP_PATH.resolve("app.flavour").toFile();
+    public static final File APP_FILE = Path.of("/app", "app.flavour").toFile();
 
     private final YamlParser<AddonConfig> addonConfigParser;
     private final YamlParser<AppConfig> appConfigParser;
@@ -53,7 +56,7 @@ public class Main {
                 .anyMatch(entry -> entry.getValue().getHash().equals(addonConfigHash));
 
         if (addonAlreadyInstalled) {
-            printLines("Addon already installed.");
+            err("Addon already installed.");
             System.exit(0);
         }
 
@@ -61,7 +64,7 @@ public class Main {
         var pkg = addonConfig.getInstall().getPackage();
         appConfig.getAddons().put(addonConfig.getInstall().getPackage(), newAddonEntry);
         appConfigParser.write(appConfig, APP_FILE);
-        printLines(
+        out(
                 "Added addon",
                 "Package: " + pkg,
                 "Hash:    " + addonConfigHash
@@ -77,8 +80,8 @@ public class Main {
             var errors = (String[]) constraintViolations.stream()
                     .map(cv -> cv.getPropertyPath().toString() + " " + cv.getMessage())
                     .toArray();
-            printLines("Check errors:");
-            printLines(errors);
+            err("Check errors:");
+            err(errors);
             System.exit(1);
         }
     }
@@ -119,7 +122,7 @@ public class Main {
                     printHelp();
             }
         } catch (YamlParseException e) {
-            printLines(
+            err(
                     "Yaml parsing error:",
                     e.getMessage()
             );
@@ -128,13 +131,21 @@ public class Main {
         System.exit(0);
     }
 
-    private void printLines(String... lines) {
+    private static void printLines(final PrintStream printStream, final String... lines) {
         var message = String.join(System.lineSeparator(), lines);
-        System.out.println(message);
+        printStream.println(message);
     }
 
-    private void printHelp() {
-        printLines(
+    private static void err(final String... lines) {
+        printLines(System.err, lines);
+    }
+
+    private static void out(final String... lines) {
+        printLines(System.out, lines);
+    }
+
+    private static void printHelp() {
+        out(
                 "FAM-gradle",
                 "syntax: fam-gradle <add|check|remove>",
                 "",
