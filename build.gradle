@@ -11,9 +11,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.3'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.10.3'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.3'
-
     implementation 'javax.validation:validation-api:2.0.1.Final'
-    implementation 'org.codehaus.groovy:groovy:3.0.2'
+    implementation 'org.apache.logging.log4j:log4j-api:2.13.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.13.1'
 
     runtime 'org.hibernate.validator:hibernate-validator:6.1.2.Final'
     runtime 'org.glassfish:javax.el:3.0.1-b11'

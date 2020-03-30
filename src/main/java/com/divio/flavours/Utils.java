@@ -1,9 +1,6 @@
 package com.divio.flavours;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -43,5 +40,10 @@ public class Utils {
         try (var bin = new BufferedReader(new InputStreamReader(in))) {
             return bin.lines().collect(Collectors.toList());
         }
+    }
+
+    public static void printLines(final PrintStream printStream, final String... lines) {
+        var message = String.join(System.lineSeparator(), lines);
+        printStream.println(message);
     }
 }

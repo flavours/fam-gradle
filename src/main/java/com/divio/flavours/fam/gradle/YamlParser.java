@@ -1,5 +1,6 @@
 package com.divio.flavours.fam.gradle;
 
+import com.divio.flavours.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -7,10 +8,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,14 +57,22 @@ public class YamlParser<AST> {
         return parse(lines);
     }
 
-    public void write(AST ast, Writer writer) throws IOException {
+    public void write(final AST ast, final Writer writer) throws IOException {
         // TODO validate the ast we're trying to write
         objectMapper.writeValue(writer, ast);
     }
 
-    public void write(AST ast, File file) throws IOException {
+    public void write(final AST ast, final File file) throws IOException {
         try (var fileWriter = new FileWriter(file)) {
             objectMapper.writeValue(fileWriter, ast);
+        }
+    }
+
+    public String writeToString(final AST ast) {
+        try {
+            return objectMapper.writeValueAsString(ast);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Could not convert AST to String", e);
         }
     }
 }
