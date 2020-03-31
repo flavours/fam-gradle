@@ -1,4 +1,4 @@
-package com.divio.flavours.fam.gradle;
+package com.divio.flavours.fam.gradle.parser;
 
 public class YamlParseException extends Exception {
     public YamlParseException(String errorMessage) {

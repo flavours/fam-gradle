@@ -1,6 +1,5 @@
-package com.divio.flavours.fam.gradle;
+package com.divio.flavours.fam.gradle.parser;
 
-import com.divio.flavours.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

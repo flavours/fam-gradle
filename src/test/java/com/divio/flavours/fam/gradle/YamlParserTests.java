@@ -3,6 +3,8 @@ package com.divio.flavours.fam.gradle;
 import com.divio.flavours.fam.gradle.model.AddonConfig;
 import com.divio.flavours.fam.gradle.model.AddonMeta;
 import com.divio.flavours.fam.gradle.model.AppConfig;
+import com.divio.flavours.fam.gradle.parser.YamlParseException;
+import com.divio.flavours.fam.gradle.parser.YamlParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;

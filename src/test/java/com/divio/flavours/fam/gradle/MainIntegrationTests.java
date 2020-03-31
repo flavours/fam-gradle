@@ -2,6 +2,8 @@ package com.divio.flavours.fam.gradle;
 
 import com.divio.flavours.Utils;
 import com.divio.flavours.fam.gradle.model.*;
+import com.divio.flavours.fam.gradle.parser.YamlParseException;
+import com.divio.flavours.fam.gradle.parser.YamlParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

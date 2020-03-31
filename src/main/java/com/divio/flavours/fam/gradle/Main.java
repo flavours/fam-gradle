@@ -5,14 +5,13 @@ import com.divio.flavours.fam.gradle.model.AddonConfig;
 import com.divio.flavours.fam.gradle.model.AddonMeta;
 import com.divio.flavours.fam.gradle.model.AppConfig;
 import com.divio.flavours.fam.gradle.model.Meta;
+import com.divio.flavours.fam.gradle.parser.YamlParseException;
+import com.divio.flavours.fam.gradle.parser.YamlParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.divio.flavours.Utils.printLines;
 
