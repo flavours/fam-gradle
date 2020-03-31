@@ -1,5 +1,6 @@
 package com.divio.flavours.fam.gradle.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.ConstraintViolation;
@@ -15,17 +16,20 @@ public class AddonConfig implements ValidatableConfig<AddonConfig> {
     private String specValue;
 
     @JsonProperty("install")
-    @NotNull @Valid
+    @NotNull
+    @Valid
     private Install installValue;
 
     @JsonProperty("meta")
-    @NotNull @Valid
+    @NotNull
+    @Valid
     private Meta metaValue;
 
     @JsonProperty("config")
     private Map<String, Config> configValue;
 
-    private AddonConfig() { }
+    private AddonConfig() {
+    }
 
     public AddonConfig(final String specValue, final Install installValue, final Meta metaValue,
                        final Map<String, Config> configValue) {
@@ -49,6 +53,11 @@ public class AddonConfig implements ValidatableConfig<AddonConfig> {
 
     public String getSpec() {
         return specValue;
+    }
+
+    @JsonIgnore
+    public AddonConfig withConfig(final Map<String, Config> configValue) {
+        return new AddonConfig(specValue, installValue, metaValue, configValue);
     }
 
     @Override

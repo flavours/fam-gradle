@@ -17,52 +17,55 @@ import java.util.stream.Collectors;
 import static com.divio.flavours.Utils.printLines;
 
 public class Main {
-    public static final String FAM_VERSION = "0.1";
     public static final String FAM_NAME = "flavour/fam-gradle";
-    public static final String FAM_IDENTITY = FAM_VERSION + ":" + FAM_NAME;
-    public static final File APP_FILE = Path.of("/app", "app.flavour").toFile();
+    public static final String FAM_VERSION = "0.1";
+    public static final String FAM_IDENTITY = FAM_NAME + ":" + FAM_VERSION;
+    public static final File RUNTIME_APP_FILE = Path.of("/app", "app.flavour").toFile();
 
     private final YamlParser<AddonConfig> addonConfigParser;
     private final YamlParser<AppConfig> appConfigParser;
+    private final File appFile;
 
-    public Main(final YamlParser<AddonConfig> addonConfigParser, final YamlParser<AppConfig> appConfigParser) {
+    public Main(
+            final YamlParser<AddonConfig> addonConfigParser,
+            final YamlParser<AppConfig> appConfigParser,
+            final File appFile
+    ) {
         this.addonConfigParser = addonConfigParser;
         this.appConfigParser = appConfigParser;
+        this.appFile = appFile;
+    }
+
+    public Main(final File appFile) {
+        this(new YamlParser<>(AddonConfig.class), new YamlParser<>(AppConfig.class), appFile);
     }
 
     public static void main(String[] args) throws IOException {
-        var addonConfigParser = new YamlParser<>(AddonConfig.class);
-        var appConfigParser = new YamlParser<>(AppConfig.class);
-        var app = new Main(addonConfigParser, appConfigParser);
+        var app = new Main(RUNTIME_APP_FILE);
         app.runArgs(args);
     }
 
-    private void add(final AddonConfig addonConfig, final AppConfig appConfig) throws IOException {
-        var writer = new StringWriter();
-        addonConfigParser.write(addonConfig, writer);
-        var formattedAppConfig = writer.toString();
+    void add(final AddonConfig addonConfig, final AppConfig appConfig) throws IOException {
+        var formattedAppConfig = addonConfigParser.writeToString(addonConfig);
         var addonConfigHash = Utils.toSha256String(formattedAppConfig);
-
-        var addonAlreadyInstalled = appConfig.getAddons().entrySet().stream()
-                .anyMatch(entry -> entry.getValue().getHash().equals(addonConfigHash));
-
-        if (addonAlreadyInstalled) {
+        if (appConfig.hasAddon(addonConfigHash)) {
             printLines(System.err, "Addon already installed.");
             return;
         }
 
-        var newAddonEntry = new AddonMeta(FAM_IDENTITY, addonConfigHash);
-        var pkg = addonConfig.getInstall().getPackage();
-        appConfig.getAddons().put(addonConfig.getInstall().getPackage(), newAddonEntry);
-        appConfigParser.write(appConfig, APP_FILE);
+        var packageValue = addonConfig.getInstall().getPackage();
+        var newAppConfig = appConfig.addAddon(packageValue, new AddonMeta(FAM_IDENTITY, addonConfigHash));
+
+        appConfigParser.write(newAppConfig, appFile);
+
         printLines(System.out,
                 "Added addon",
-                "Package: " + pkg,
+                "Package: " + packageValue,
                 "Hash:    " + addonConfigHash
         );
     }
 
-    private void check(AddonConfig addon) {
+    void check(AddonConfig addon) {
         var constraintViolations = addon.validate();
         if (!constraintViolations.isEmpty()) {
             var errors = (String[]) constraintViolations.stream()
@@ -74,15 +77,12 @@ public class Main {
         }
     }
 
-    private void remove(final AddonConfig addon, final AppConfig appConfig) throws IOException {
+    void remove(final AddonConfig addon, final AppConfig appConfig) throws IOException {
         var formattedAddonConfig = addonConfigParser.writeToString(addon);
         var addonConfigHash = Utils.toSha256String(formattedAddonConfig);
-        var filteredAddons = appConfig.getAddons().entrySet().stream()
-                .filter(entrySet -> !entrySet.getValue().getHash().equals(addonConfigHash))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        var newAppConfig = appConfig.removeAddon(addonConfigHash);
 
-        var newAppConfig = new AppConfig(appConfig.getSpec(), appConfig.getMeta(), filteredAddons);
-        appConfigParser.write(newAppConfig, APP_FILE);
+        appConfigParser.write(newAppConfig, appFile);
         printLines(System.out,
                 "Removed addon",
                 "Package: " + addon.getInstall().getPackage(),
@@ -130,13 +130,13 @@ public class Main {
         }
     }
 
-    private AppConfig getOrCreateAppConfig() throws YamlParseException, IOException {
+    AppConfig getOrCreateAppConfig() throws YamlParseException, IOException {
         boolean appFileWasCreated = false;
         try {
-            appFileWasCreated = APP_FILE.createNewFile();
+            appFileWasCreated = appFile.createNewFile();
         } catch (IOException e) {
             printLines(System.err,
-                    "Could not access file '" + APP_FILE.getAbsolutePath() + "'."
+                    "Could not access file '" + appFile.getAbsolutePath() + "'."
             );
             System.exit(1);
         }
@@ -147,7 +147,7 @@ public class Main {
             var meta = new Meta("my-project", "0.1");
             appConfig = new AppConfig("0.1", meta, new HashMap<>());
         } else {
-            appConfig = appConfigParser.parse(APP_FILE);
+            appConfig = appConfigParser.parse(appFile);
         }
 
         return appConfig;
