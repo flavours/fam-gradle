@@ -20,27 +20,31 @@ public class Main {
     public static final String FAM_VERSION = "0.1";
     public static final String FAM_IDENTITY = FAM_NAME + ":" + FAM_VERSION;
     public static final File RUNTIME_APP_FILE = Path.of("/app", "app.flavour").toFile();
+    public static final File RUNTIME_ADDON_DIRECTORY_PATH = new File(".flavour/addons");
 
     private final YamlParser<AddonConfig> addonConfigParser;
     private final YamlParser<AppConfig> appConfigParser;
     private final File appFile;
+    private final File addonDirectoryPath;
 
     public Main(
             final YamlParser<AddonConfig> addonConfigParser,
             final YamlParser<AppConfig> appConfigParser,
-            final File appFile
+            final File appFile,
+            final File addonDirectoryPath
     ) {
         this.addonConfigParser = addonConfigParser;
         this.appConfigParser = appConfigParser;
         this.appFile = appFile;
+        this.addonDirectoryPath = addonDirectoryPath;
     }
 
-    public Main(final File appFile) {
-        this(new YamlParser<>(AddonConfig.class), new YamlParser<>(AppConfig.class), appFile);
+    public Main(final File appFile, final File addonDirectoryPath) {
+        this(new YamlParser<>(AddonConfig.class), new YamlParser<>(AppConfig.class), appFile, addonDirectoryPath);
     }
 
     public static void main(String[] args) throws IOException {
-        var app = new Main(RUNTIME_APP_FILE);
+        var app = new Main(RUNTIME_APP_FILE, RUNTIME_ADDON_DIRECTORY_PATH);
         app.runArgs(args);
     }
 
@@ -56,6 +60,9 @@ public class Main {
         var newAppConfig = appConfig.addAddon(packageValue, new AddonMeta(FAM_IDENTITY, addonConfigHash));
 
         appConfigParser.write(newAppConfig, appFile);
+        addonDirectoryPath.mkdirs();
+        var addonFile = new File(addonDirectoryPath, addonConfigHash);
+        addonConfigParser.write(addonConfig, addonFile);
 
         printLines(System.out,
                 "Added addon",
@@ -82,6 +89,8 @@ public class Main {
         var newAppConfig = appConfig.removeAddon(addonConfigHash);
 
         appConfigParser.write(newAppConfig, appFile);
+        new File(addonDirectoryPath, addonConfigHash).delete();
+
         printLines(System.out,
                 "Removed addon",
                 "Package: " + addon.getInstall().getPackage(),
