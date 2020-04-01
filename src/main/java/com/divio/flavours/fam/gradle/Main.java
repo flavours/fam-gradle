@@ -20,7 +20,7 @@ public class Main {
     public static final String FAM_VERSION = "0.1";
     public static final String FAM_IDENTITY = FAM_NAME + ":" + FAM_VERSION;
     public static final File RUNTIME_APP_FILE = Path.of("/app", "app.flavour").toFile();
-    public static final File RUNTIME_ADDON_DIRECTORY_PATH = new File(".flavour/addons");
+    public static final File RUNTIME_ADDON_DIRECTORY_PATH = Path.of("/app", ".flavour", "addons").toFile();
 
     private final YamlParser<AddonConfig> addonConfigParser;
     private final YamlParser<AppConfig> appConfigParser;
