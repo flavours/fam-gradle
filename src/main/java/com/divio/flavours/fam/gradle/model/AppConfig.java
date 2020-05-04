@@ -59,17 +59,17 @@ public class AppConfig implements ValidatableConfig<AppConfig> {
     }
 
     @JsonIgnore
-    public AppConfig removeAddon(final String addonHash) {
+    public AppConfig removeAddon(final AddonConfig addonConfig) {
         var newAddonsValue = addonsValue.entrySet().stream()
-                .filter(es -> !es.getValue().getHash().equals(addonHash))
+                .filter(es -> !es.getKey().equalsIgnoreCase(addonConfig.getMeta().asAppIdentifier()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return withAddons(newAddonsValue);
     }
 
     @JsonIgnore
-    public boolean hasAddon(final String addonHash) {
+    public boolean hasAddon(final AddonConfig addonConfig) {
         return addonsValue.entrySet().stream()
-                .anyMatch(es -> es.getValue().getHash().equals(addonHash));
+                .anyMatch(entrySet -> entrySet.getKey().equalsIgnoreCase(addonConfig.getMeta().asAppIdentifier()));
     }
 
     @Override

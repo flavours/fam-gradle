@@ -25,17 +25,20 @@ class MainIntegrationTests {
         var appParser = new YamlParser<>(AppConfig.class);
         var main = new Main(addonParser, appParser, tempAppFile, tempAddonDirectoryPath);
 
-        var addonConfig = new AddonConfig("0.1", new Install("com.divio:some-addon:1.0"), new Meta("some-addon", "1.0"), Map.of());
-        var addonConfigHash = Utils.toSha256String(addonParser.writeToString(addonConfig));
+        // phase 1: add
         var emptyAppConfig = main.getOrCreateAppConfig();
-        var addAppConfig = emptyAppConfig.addAddon("com.divio:some-addon:1.0", new AddonMeta(Main.FAM_IDENTITY, addonConfigHash));
+        var addonConfig = new AddonConfig("0.1", new Install("com.divio:some-addon:1.0"), new Meta("divio/some-addon", "1.0-special"), Map.of());
+        var addonConfigHash = Utils.toSha256String(addonParser.writeToString(addonConfig));
+        var addAppConfig = emptyAppConfig.addAddon("divio/some-addon:1.0-special", new AddonMeta(Main.FAM_IDENTITY, addonConfigHash));
 
         main.add(addonConfig, emptyAppConfig);
         assertThat(tempAppFile).hasContent(appParser.writeToString(addAppConfig));
         assertThat(new File(tempAddonDirectoryPath, addonConfigHash)).exists();
 
+        // phase 2: remove
+        emptyAppConfig = main.getOrCreateAppConfig();
         var writtenAppConfig = appParser.parse(tempAppFile);
-        var afterRemoval = writtenAppConfig.removeAddon(addonConfigHash);
+        var afterRemoval = writtenAppConfig.removeAddon(addonConfig);
         main.remove(addonConfig, emptyAppConfig);
         assertThat(tempAppFile).hasContent(appParser.writeToString(afterRemoval));
         assertThat(new File(tempAddonDirectoryPath, addonConfigHash)).doesNotExist();

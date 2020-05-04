@@ -27,4 +27,8 @@ public class Meta {
     public String getVersion() {
         return versionValue;
     }
+
+    public String asAppIdentifier() {
+        return String.format("%s:%s", getName(), getVersion());
+    }
 }

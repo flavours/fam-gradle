@@ -49,14 +49,14 @@ public class Main {
     }
 
     void add(final AddonConfig addonConfig, final AppConfig appConfig) throws IOException {
-        var formattedAppConfig = addonConfigParser.writeToString(addonConfig);
-        var addonConfigHash = Utils.toSha256String(formattedAppConfig);
-        if (appConfig.hasAddon(addonConfigHash)) {
+        if (appConfig.hasAddon(addonConfig)) {
             printLines(System.err, "Addon already installed.");
-            return;
+            System.exit(1);
         }
 
-        var packageValue = addonConfig.getInstall().getPackage();
+        var formattedAppConfig = addonConfigParser.writeToString(addonConfig);
+        var addonConfigHash = Utils.toSha256String(formattedAppConfig);
+        var packageValue = addonConfig.getMeta().asAppIdentifier();
         var newAppConfig = appConfig.addAddon(packageValue, new AddonMeta(FAM_IDENTITY, addonConfigHash));
 
         appConfigParser.write(newAppConfig, appFile);
@@ -84,10 +84,13 @@ public class Main {
     }
 
     void remove(final AddonConfig addon, final AppConfig appConfig) throws IOException {
-        var formattedAddonConfig = addonConfigParser.writeToString(addon);
-        var addonConfigHash = Utils.toSha256String(formattedAddonConfig);
-        var newAppConfig = appConfig.removeAddon(addonConfigHash);
+        if (!appConfig.hasAddon(addon)) {
+            printLines(System.err, String.format("Addon '%s' is not installed.", addon.getMeta().asAppIdentifier()));
+            System.exit(1);
+        }
 
+        var newAppConfig = appConfig.removeAddon(addon);
+        var addonConfigHash = Utils.toSha256String(addonConfigParser.writeToString(addon));
         appConfigParser.write(newAppConfig, appFile);
         new File(addonDirectoryPath, addonConfigHash).delete();
 

@@ -1,11 +1,10 @@
 spec: 0.1
-install: 
-  package: django==1.11.20.4
+install:
+  package: com.amazonaws:aws-java-sdk-s3:1.11.755
 meta:
-  name: django-divio
-  version: 0.1
-
-config: 
+  name: "flavours/java/aws-java-sdk-s3"
+  version: 1.0
+config:
   languages:
     label: Languages
     required: True

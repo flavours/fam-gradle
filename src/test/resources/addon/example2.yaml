@@ -1,6 +1,6 @@
 spec: 0.1
-install: 
-  package: django==1.11.20.4
+install:
+  package: com.typesafe:config:1.4.0
 meta:
-  name: django-divio
-  version: 0.1
+  name: "flavours/java/typesafe-config"
+  version: 1.0

@@ -31,9 +31,9 @@ public class YamlParserTests {
         var addon = addonParser.parse(readResource("addon/example1.yaml"));
 
         assertThat(addon.getSpec()).isEqualTo("0.1");
-        assertThat(addon.getMeta().getName()).isEqualTo("django-divio");
-        assertThat(addon.getMeta().getVersion()).isEqualTo("0.1");
-        assertThat(addon.getInstall().getPackage()).isEqualTo("django==1.11.20.4");
+        assertThat(addon.getMeta().getName()).isEqualTo("flavours/java/aws-java-sdk-s3");
+        assertThat(addon.getMeta().getVersion()).isEqualTo("1.0");
+        assertThat(addon.getInstall().getPackage()).isEqualTo("com.amazonaws:aws-java-sdk-s3:1.11.755");
 
         var config = addon.getConfig();
         var languageConfig = config.get("languages");
