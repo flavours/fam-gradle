@@ -1,13 +1,14 @@
 package com.divio.flavours.fam.gradle;
 
-import com.divio.flavours.fam.gradle.model.AddonConfig;
-import com.divio.flavours.fam.gradle.model.AddonMeta;
-import com.divio.flavours.fam.gradle.model.AppConfig;
+import com.divio.flavours.fam.gradle.model.*;
 import com.divio.flavours.fam.gradle.parser.YamlParseException;
 import com.divio.flavours.fam.gradle.parser.YamlParser;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,6 @@ public class YamlParserTests {
     @Test
     public void canParseAddonConfig() throws IOException, YamlParseException {
         var addonParser = new YamlParser<>(AddonConfig.class);
-
         var addon = addonParser.parse(readResource("addon/example1.yaml"));
 
         assertThat(addon.getSpec()).isEqualTo("0.1");
@@ -52,14 +52,14 @@ public class YamlParserTests {
         var app = appParser.parse(readResource("app/app.flavour"));
 
         assertThat(app.getSpec()).isEqualTo("0.1");
-        assertThat(app.getMeta().getName()).isEqualTo("my-aldryn-project");
+        assertThat(app.getMeta().getName()).isEqualTo("my-gradle-project");
         assertThat(app.getMeta().getVersion()).isEqualTo("0.1");
 
         var addons = app.getAddons();
-        assertThat(addons.get("addon/aldryn-addons:1.0.4").getManager()).isEqualTo("flavour/fam-aldryn:0.1");
-        assertThat(addons.get("addon/aldryn-addons:1.0.4").getHash()).isEqualTo("1cf06ba56949fe7370d81b9ba459a272cf1879036d9a363a119cd441d8854182");
-        assertThat(addons.get("addon/aldryn-common:1.0.4").getManager()).isEqualTo("flavour/fam-aldryn:0.1");
-        assertThat(addons.get("addon/aldryn-common:1.0.4").getHash()).isEqualTo("f2c5818177ea75546d2e18d65f2d6890ddfa7d87fc617d7200c9df7c2f9857f2");
+        assertThat(addons.get("addon/gradle-addons:1.0.4").getManager()).isEqualTo("flavour/fam-gradle:0.1");
+        assertThat(addons.get("addon/gradle-addons:1.0.4").getHash()).isEqualTo("1cf06ba56949fe7370d81b9ba459a272cf1879036d9a363a119cd441d8854182");
+        assertThat(addons.get("addon/gradle-common:1.0.4").getManager()).isEqualTo("flavour/fam-gradle:0.1");
+        assertThat(addons.get("addon/gradle-common:1.0.4").getHash()).isEqualTo("f2c5818177ea75546d2e18d65f2d6890ddfa7d87fc617d7200c9df7c2f9857f2");
     }
 
     @Test
@@ -85,5 +85,18 @@ public class YamlParserTests {
         var updatedApp = appParser.parse(newData);
         assertThat(updatedApp.getAddons().get("addon/s3-addons:1.0.0").getManager()).isEqualTo("flavour/fam-gradle:0.1");
         assertThat(updatedApp.getAddons().get("addon/s3-addons:1.0.0").getHash()).isEqualTo("abc123");
+    }
+
+    @Test
+    public void nullConfigIsNotIncluded() throws IOException, YamlParseException {
+        var addonParser = new YamlParser<>(AddonConfig.class);
+        var addon = new AddonConfig(
+                "0.1",
+                new Install("com.amazonaws:aws-java-sdk-s3:1.11.755"),
+                new Meta("gradle/aws-java-sdk-s3", "1.11.755"),
+                null);
+
+        var result = addonParser.writeToString(addon);
+        assertThat(result).doesNotContain("null");
     }
 }

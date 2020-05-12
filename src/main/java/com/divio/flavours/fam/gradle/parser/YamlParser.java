@@ -1,5 +1,6 @@
 package com.divio.flavours.fam.gradle.parser;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -7,7 +8,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +22,7 @@ public class YamlParser<AST> {
     private final Class<AST> astClass;
 
     public YamlParser(Class<AST> astClass) {
-        this.objectMapper = new ObjectMapper(new YAMLFactory());
+        this.objectMapper = new ObjectMapper(new YAMLFactory()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         this.validatorFactory = Validation.buildDefaultValidatorFactory();
         this.astClass = astClass;
