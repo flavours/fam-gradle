@@ -15,4 +15,4 @@ COPY ./scripts .
 RUN ln -s /bin/fam-gradle/add /bin/add && \
     ln -s /bin/fam-gradle/check /bin/check && \
     ln -s /bin/fam-gradle/remove /bin/remove
-ENV FAM_IDENTIFIER flavour/fam-gradle:0.0.1
+ENV FAM_IDENTIFIER flavour/fam-gradle:0.1
